@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure Login System</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Secure Login System</h2>
+
+  <div class="container">
+    <!-- Sign Up Form -->
+    <div class="form">
+      <h3>Sign Up</h3>
+      <input type="text" id="signupUser" placeholder="Username" />
+      <input type="password" id="signupPass" placeholder="Password" />
+      <div class="toggle">
+        <input type="checkbox" id="showPassSignup" onclick="togglePassword('signupPass')">
+        <label for="showPassSignup">Show Password</label>
+      </div>
+      <button onclick="signUp()">Sign Up</button>
+      <p id="signupMsg"></p>
+    </div>
+
+    <!-- Login Form -->
+    <div class="form">
+      <h3>Login</h3>
+      <input type="text" id="loginUser" placeholder="Username" />
+      <input type="password" id="loginPass" placeholder="Password" />
+      <div class="toggle">
+        <input type="checkbox" id="showPassLogin" onclick="togglePassword('loginPass')">
+        <label for="showPassLogin">Show Password</label>
+      </div>
+      <button onclick="login()">Login</button>
+      <p id="loginMsg"></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

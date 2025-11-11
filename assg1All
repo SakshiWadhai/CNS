@@ -1,0 +1,460 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <iomanip>
+using namespace std;
+
+// ====================================================================
+// 1️⃣ CAESAR CIPHER
+// ====================================================================
+
+// Encryption
+string caesarEncrypt(string text, int key)
+{
+    string result = "";
+    for (char c : text)
+    {
+        if (isalpha(c))
+        {
+            char base;
+            if (isupper(c))
+                base = 'A';
+            else
+                base = 'a';
+
+            int position = c - base;
+            int newPosition = (position + key) % 26;
+            char newChar = base + newPosition;
+            result = result + newChar;
+        }
+        else
+        {
+            result = result + c;
+        }
+    }
+    return result;
+}
+
+// Decryption
+string caesarDecrypt(string text, int key)
+{
+    string result = "";
+    for (char c : text)
+    {
+        if (isalpha(c))
+        {
+            char base;
+            if (isupper(c))
+                base = 'A';
+            else
+                base = 'a';
+
+            int position = c - base;
+            int newPosition = (position - key + 26) % 26;
+            char newChar = base + newPosition;
+            result = result + newChar;
+        }
+        else
+        {
+            result = result + c;
+        }
+    }
+    return result;
+}
+
+// ====================================================================
+// 2️⃣ POLY CIPHER (Vigenère Logic)
+// ====================================================================
+
+// Encryption
+string polyEncrypt(string text, string key)
+{
+    string result = "";
+    int j = 0;
+
+    for (char c : text)
+    {
+        if (isalpha(c))
+        {
+            char base;
+            if (isupper(c))
+                base = 'A';
+            else
+                base = 'a';
+
+            int textPos = c - base;
+            int keyPos = tolower(key[j % key.size()]) - 'a';
+            int newPos = (textPos + keyPos) % 26;
+            char newChar = base + newPos;
+
+            result = result + newChar;
+            j++;
+        }
+        else
+        {
+            result = result + c;
+        }
+    }
+
+    return result;
+}
+
+// Decryption
+string polyDecrypt(string text, string key)
+{
+    string result = "";
+    int j = 0;
+
+    for (char c : text)
+    {
+        if (isalpha(c))
+        {
+            char base;
+            if (isupper(c))
+                base = 'A';
+            else
+                base = 'a';
+
+            int textPos = c - base;
+            int keyPos = tolower(key[j % key.size()]) - 'a';
+            int newPos = (textPos - keyPos + 26) % 26;
+            char newChar = base + newPos;
+
+            result = result + newChar;
+            j++;
+        }
+        else
+        {
+            result = result + c;
+        }
+    }
+
+    return result;
+}
+
+// ====================================================================
+// 3️⃣ RAIL FENCE CIPHER
+// ====================================================================
+
+// Encryption
+string railFenceEncrypt(string text, int rails)
+{
+    if (rails <= 1)
+        return text;
+
+    vector<string> rail(rails);
+    int dir = 1;
+    int row = 0;
+
+    for (char c : text)
+    {
+        rail[row] = rail[row] + c;
+
+        if (row == 0)
+            dir = 1;
+        else if (row == rails - 1)
+            dir = -1;
+
+        row = row + dir;
+    }
+
+    string result = "";
+    for (int i = 0; i < rails; i++)
+        result = result + rail[i];
+
+    return result;
+}
+
+// Decryption
+string railFenceDecrypt(string cipher, int rails)
+{
+    if (rails <= 1)
+        return cipher;
+
+    int len = cipher.size();
+    vector<vector<bool>> mark(len, vector<bool>(rails, false));
+    int dir = 1;
+    int row = 0;
+
+    for (int i = 0; i < len; i++)
+    {
+        mark[i][row] = true;
+
+        if (row == 0)
+            dir = 1;
+        else if (row == rails - 1)
+            dir = -1;
+
+        row = row + dir;
+    }
+
+    vector<vector<char>> rail(rails);
+    int index = 0;
+    for (int r = 0; r < rails; r++)
+    {
+        for (int i = 0; i < len; i++)
+        {
+            if (mark[i][r] && index < len)
+            {
+                rail[r].push_back(cipher[index]);
+                index++;
+            }
+        }
+    }
+
+    string result = "";
+    dir = 1;
+    row = 0;
+    vector<int> pos(rails, 0);
+
+    for (int i = 0; i < len; i++)
+    {
+        result = result + rail[row][pos[row]];
+        pos[row]++;
+
+        if (row == 0)
+            dir = 1;
+        else if (row == rails - 1)
+            dir = -1;
+
+        row = row + dir;
+    }
+
+    return result;
+}
+
+// ====================================================================
+// 4️⃣ VERNAM CIPHER
+// ====================================================================
+
+// Encryption
+string vernamEncrypt(string text, string key)
+{
+    string result = "";
+    for (int i = 0; i < text.size(); i++)
+    {
+        unsigned char c = text[i];
+        unsigned char k = key[i % key.size()];
+        unsigned char enc = c ^ k;
+
+        stringstream ss;
+        ss << hex << setw(2) << setfill('0') << (int)enc;
+        result = result + ss.str();
+    }
+    return result;
+}
+
+// Decryption
+string vernamDecrypt(string hexText, string key)
+{
+    string result = "";
+    for (int i = 0; i < hexText.size(); i += 2)
+    {
+        string byteStr = hexText.substr(i, 2);
+        unsigned char enc = (unsigned char)stoi(byteStr, nullptr, 16);
+        unsigned char k = key[(i / 2) % key.size()];
+        unsigned char dec = enc ^ k;
+        result = result + (char)dec;
+    }
+    return result;
+}
+
+// ====================================================================
+// 5️⃣ VIGENERE CIPHER
+// ====================================================================
+
+// Encryption
+string vigenereEncrypt(string text, string key)
+{
+    string result = "";
+    int keyIndex = 0;
+
+    for (char c : text)
+    {
+        if (isalpha(c))
+        {
+            char base;
+            if (isupper(c))
+                base = 'A';
+            else
+                base = 'a';
+
+            char keyChar = key[keyIndex % key.size()];
+            int keyShift = tolower(keyChar) - 'a';
+
+            int textPos = c - base;
+            int newPos = (textPos + keyShift) % 26;
+            char newChar = base + newPos;
+
+            result = result + newChar;
+            keyIndex++;
+        }
+        else
+        {
+            result = result + c;
+        }
+    }
+    return result;
+}
+
+// Decryption
+string vigenereDecrypt(string text, string key)
+{
+    string result = "";
+    int keyIndex = 0;
+
+    for (char c : text)
+    {
+        if (isalpha(c))
+        {
+            char base;
+            if (isupper(c))
+                base = 'A';
+            else
+                base = 'a';
+
+            char keyChar = key[keyIndex % key.size()];
+            int keyShift = tolower(keyChar) - 'a';
+
+            int textPos = c - base;
+            int newPos = (textPos - keyShift + 26) % 26;
+            char newChar = base + newPos;
+
+            result = result + newChar;
+            keyIndex++;
+        }
+        else
+        {
+            result = result + c;
+        }
+    }
+    return result;
+}
+
+// ====================================================================
+// 6️⃣ ONE-TIME PAD CIPHER
+// ====================================================================
+
+// Encryption
+string oneTimePadEncrypt(string text, string key)
+{
+    string result = "";
+    for (int i = 0; i < text.size(); i++)
+    {
+        unsigned char c = text[i];
+        unsigned char k = key[i];
+        unsigned char enc = c ^ k;
+
+        stringstream ss;
+        ss << hex << setw(2) << setfill('0') << (int)enc;
+        result = result + ss.str();
+    }
+    return result;
+}
+
+// Decryption
+string oneTimePadDecrypt(string hexText, string key)
+{
+    string result = "";
+    for (int i = 0; i < hexText.size(); i += 2)
+    {
+        string byteStr = hexText.substr(i, 2);
+        unsigned char enc = (unsigned char)stoi(byteStr, nullptr, 16);
+        unsigned char dec = enc ^ key[i / 2];
+        result = result + (char)dec;
+    }
+    return result;
+}
+
+// ====================================================================
+// MAIN FUNCTION (REPEATS UNTIL EXIT)
+// ====================================================================
+int main()
+{
+    while (true)
+    {
+        int choice;
+        string text, key;
+        int keyNum, rails;
+
+        cout << "\n==============================" << endl;
+        cout << " 🔐 MULTI CIPHER TOOL " << endl;
+        cout << "==============================" << endl;
+        cout << "1. Caesar Cipher" << endl;
+        cout << "2. Poly Cipher (Vigenere Logic)" << endl;
+        cout << "3. Rail Fence Cipher" << endl;
+        cout << "4. Vernam Cipher" << endl;
+        cout << "5. Vigenere Cipher" << endl;
+        cout << "6. One-Time Pad Cipher" << endl;
+        cout << "0. Exit" << endl;
+        cout << "Enter your choice (0–6): ";
+        cin >> choice;
+        cin.ignore();
+
+        if (choice == 0)
+        {
+            cout << "Exiting... 🔒" << endl;
+            break;
+        }
+
+        cout << "\nEnter text: ";
+        getline(cin, text);
+
+        switch (choice)
+        {
+        case 1:
+            cout << "Enter numeric key: ";
+            cin >> keyNum;
+            cout << "\nEncrypted: " << caesarEncrypt(text, keyNum) << endl;
+            cout << "Decrypted: " << caesarDecrypt(caesarEncrypt(text, keyNum), keyNum) << endl;
+            break;
+
+        case 2:
+            cout << "Enter key (word): ";
+            cin >> key;
+            cout << "\nEncrypted: " << polyEncrypt(text, key) << endl;
+            cout << "Decrypted: " << polyDecrypt(polyEncrypt(text, key), key) << endl;
+            break;
+
+        case 3:
+            cout << "Enter number of rails: ";
+            cin >> rails;
+            cout << "\nEncrypted: " << railFenceEncrypt(text, rails) << endl;
+            cout << "Decrypted: " << railFenceDecrypt(railFenceEncrypt(text, rails), rails) << endl;
+            break;
+
+        case 4:
+            cout << "Enter key (word): ";
+            cin >> key;
+            cout << "\nEncrypted (Hex): " << vernamEncrypt(text, key) << endl;
+            cout << "Decrypted: " << vernamDecrypt(vernamEncrypt(text, key), key) << endl;
+            break;
+
+        case 5:
+            cout << "Enter key (word): ";
+            cin >> key;
+            cout << "\nEncrypted: " << vigenereEncrypt(text, key) << endl;
+            cout << "Decrypted: " << vigenereDecrypt(vigenereEncrypt(text, key), key) << endl;
+            break;
+
+        case 6:
+            cout << "Enter key (same length as text): ";
+            cin >> key;
+            if (key.size() != text.size())
+            {
+                cout << "❌ Error: Key length must match text length!" << endl;
+            }
+            else
+            {
+                cout << "\nEncrypted (Hex): " << oneTimePadEncrypt(text, key) << endl;
+                cout << "Decrypted: " << oneTimePadDecrypt(oneTimePadEncrypt(text, key), key) << endl;
+            }
+            break;
+
+        default:
+            cout << "Invalid choice!" << endl;
+        }
+    }
+    return 0;
+}
